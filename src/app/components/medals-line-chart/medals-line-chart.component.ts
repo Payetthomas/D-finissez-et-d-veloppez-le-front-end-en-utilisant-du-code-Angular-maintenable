@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, ElementRef, input, OnDestroy, ViewChild } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, input, OnDestroy, viewChild } from '@angular/core';
 import Chart from 'chart.js/auto';
 
 @Component({
@@ -10,12 +10,12 @@ export class MedalsLineChartComponent implements AfterViewInit, OnDestroy {
   years = input<number[]>([]);
   medals = input<number[]>([]);
 
-  @ViewChild('lineCanvas') canvas!: ElementRef<HTMLCanvasElement>;
+  canvas = viewChild.required<ElementRef<HTMLCanvasElement>>('lineCanvas');
 
   private chart?: Chart<'line', number[], number>;
 
   ngAfterViewInit(): void {
-    this.chart = new Chart(this.canvas.nativeElement, {
+    this.chart = new Chart(this.canvas().nativeElement, {
       type: 'line',
       data: {
         labels: this.years(),
