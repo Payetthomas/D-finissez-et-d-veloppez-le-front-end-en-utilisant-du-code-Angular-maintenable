@@ -1,1 +1,15 @@
-<p>dashboard works!</p>
+<h2>Olympic games app</h2>
+<hr />
+<app-header [title]="title" [indicators]="indicators"></app-header>
+
+@if (errorMessage) {
+  <p>{{ errorMessage }}</p>
+}
+
+@if (countries.length > 0) {
+  <app-medals-pie-chart
+    [labels]="countries"
+    [values]="medals"
+    (countrySelected)="onCountrySelected($event)">
+  </app-medals-pie-chart>
+}
