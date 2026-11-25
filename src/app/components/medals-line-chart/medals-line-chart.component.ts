@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, ElementRef, input, OnDestroy, viewChild } from '@angular/core';
+import { AfterViewInit, Component, computed, ElementRef, input, OnDestroy, viewChild } from '@angular/core';
 import Chart from 'chart.js/auto';
 
 @Component({
@@ -12,6 +12,14 @@ export class MedalsLineChartComponent implements AfterViewInit, OnDestroy {
 
   canvas = viewChild.required<ElementRef<HTMLCanvasElement>>('lineCanvas');
 
+  description = computed(
+    () =>
+      'Medals per edition: ' +
+      this.years()
+        .map((year, index) => `${year} ${this.medals()[index]}`)
+        .join(', ')
+  );
+
   private chart?: Chart<'line', number[], number>;
 
   ngAfterViewInit(): void {
@@ -21,14 +29,19 @@ export class MedalsLineChartComponent implements AfterViewInit, OnDestroy {
         labels: this.years(),
         datasets: [
           {
-            label: 'medals',
+            label: 'Medals',
             data: this.medals(),
+            borderColor: '#0b868f',
             backgroundColor: '#0b868f',
           },
         ],
       },
       options: {
-        aspectRatio: 2.5,
+        maintainAspectRatio: false,
+        scales: {
+          x: { title: { display: true, text: 'Year' } },
+          y: { beginAtZero: true, title: { display: true, text: 'Medals' } },
+        },
       },
     });
   }

@@ -1,11 +1,11 @@
-<div class="center">
-  <div>{{ title() }}</div>
-</div>
-<div class="split">
-  @for (indicator of indicators(); track indicator.label) {
-    <div>
-      <p>{{ indicator.label }}</p>
-      <p>{{ indicator.value }}</p>
-    </div>
-  }
+<div class="page-header">
+  <h1 class="page-title">{{ title() }}</h1>
+  <ul class="indicators">
+    @for (indicator of indicators(); track indicator.label) {
+      <li class="indicator">
+        <span class="indicator-label">{{ indicator.label }}</span>
+        <span class="indicator-value">{{ indicator.value }}</span>
+      </li>
+    }
+  </ul>
 </div>
