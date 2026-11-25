@@ -4,7 +4,7 @@
     @for (indicator of indicators(); track indicator.label) {
       <li class="indicator">
         <span class="indicator-label">{{ indicator.label }}</span>
-        <span class="indicator-value">{{ indicator.value }}</span>
+        <span class="indicator-value">{{ indicator.value | number }}</span>
       </li>
     }
   </ul>
