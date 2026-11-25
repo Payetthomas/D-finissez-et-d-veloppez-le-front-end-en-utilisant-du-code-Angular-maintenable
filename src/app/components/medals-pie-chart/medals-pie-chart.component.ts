@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, ElementRef, input, OnDestroy, output, viewChild } from '@angular/core';
+import { AfterViewInit, Component, computed, ElementRef, input, OnDestroy, output, viewChild } from '@angular/core';
 import Chart from 'chart.js/auto';
 
 const PIE_COLORS = ['#0b868f', '#adc3de', '#7a3c53', '#8f6263', '#ffa500', '#94819d'];
@@ -14,6 +14,14 @@ export class MedalsPieChartComponent implements AfterViewInit, OnDestroy {
   countrySelected = output<number>();
 
   canvas = viewChild.required<ElementRef<HTMLCanvasElement>>('pieCanvas');
+
+  description = computed(
+    () =>
+      'Medals per country: ' +
+      this.labels()
+        .map((label, index) => `${label} ${this.values()[index]}`)
+        .join(', ')
+  );
 
   private chart?: Chart<'pie', number[], string>;
 
@@ -32,7 +40,10 @@ export class MedalsPieChartComponent implements AfterViewInit, OnDestroy {
         ],
       },
       options: {
-        aspectRatio: 2.5,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { position: 'bottom' },
+        },
         onClick: (_event, elements) => {
           if (elements.length > 0) {
             this.countrySelected.emit(elements[0].index);

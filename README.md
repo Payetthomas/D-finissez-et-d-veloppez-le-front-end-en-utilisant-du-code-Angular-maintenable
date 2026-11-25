@@ -1,29 +1,47 @@
-# OlympicGamesStarter
+# Télésport — Jeux Olympiques
 
-This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 18.0.6.
+Application Angular qui présente les performances des pays aux Jeux olympiques : un dashboard avec le nombre de médailles par pays et une page de détail par pays.
 
-Don't forget to install your node_modules before starting (`npm install`).
+## Prérequis
 
-## Development server
+- Node.js 18 ou plus récent
+- Angular CLI 18 (`npm install -g @angular/cli`)
 
-Run `ng serve` for a dev server. Navigate to `http://localhost:4200/`. The application will automatically reload if you change any of the source files.
+## Installation et lancement
 
-## Build
+```bash
+npm install
+ng serve
+```
 
-Run `ng build` to build the project. The build artifacts will be stored in the `dist/` directory.
+Ouvrir ensuite `http://localhost:4200/`.
 
-## Where to start
+| Commande | Rôle |
+|---|---|
+| `ng serve` | serveur de développement |
+| `ng build` | build de production dans `dist/` |
+| `ng lint` | vérification du code (ESLint) |
 
-As you can see, an architecture has already been defined for the project. It is just a suggestion, you can choose to use your own. The predefined architecture includes (in addition to the default angular architecture) the following:
+## Fonctionnalités
 
-- `components` folder: contains every reusable components
-- `pages` folder: contains components used for routing
-- `core` folder: contains the business logic (`services` and `models` folders)
+- `/` : dashboard — nombre de pays, nombre de JO, camembert des médailles par pays, liste des pays.
+- `/country/:id` : détail d'un pays — participations, total des médailles et des athlètes, courbe par édition, tableau des participations.
+- Un id inconnu redirige vers `/not-found`.
+- États de chargement, vide et erreur ; affichage responsive (desktop, tablette, mobile).
 
-I suggest you to start by understanding this starter code. Pay an extra attention to the `app-routing.module.ts` and the `olympic.service.ts`.
+## Structure
 
-Once mastered, you should continue by creating the typescript interfaces inside the `models` folder. As you can see I already created two files corresponding to the data included inside the `olympic.json`. With your interfaces, improve the code by replacing every `any` by the corresponding interface.
+```
+src/app/
+├── components/   composants réutilisables (header, graphiques)
+├── pages/        pages reliées aux routes (dashboard, country-detail, not-found)
+├── services/     DataService : accès aux données et calculs
+└── models/       interfaces TypeScript
+```
 
-You're now ready to implement the requested features.
+Les données sont simulées dans `src/assets/mock/olympic.json`.
 
-Good luck!
+## Documentation
+
+- `ARCHITECTURE.md` : architecture, flux des données, patterns et décisions.
+- `notes-architecture.md` : audit du starter, plan d'architecture et refactor réalisé.

@@ -1,0 +1,48 @@
+.page-header {
+  margin-bottom: 24px;
+}
+
+.page-title {
+  width: fit-content;
+  margin: 0 auto 16px;
+  padding: 10px 16px;
+  border-radius: var(--radius);
+  background: var(--color-primary-dark);
+  color: #fff;
+  font-size: 1.5rem;
+  text-align: center;
+}
+
+.indicators {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 16px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.indicator {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-width: 160px;
+  padding: 10px 16px;
+  border: 1px solid var(--color-primary);
+  border-radius: var(--radius);
+  color: var(--color-muted);
+}
+
+.indicator-value {
+  font-size: 1.25rem;
+  font-weight: bold;
+  color: var(--color-text);
+}
+
+@media (max-width: 767px) {
+  .indicators {
+    flex-direction: column;
+    align-items: stretch;
+  }
+}
