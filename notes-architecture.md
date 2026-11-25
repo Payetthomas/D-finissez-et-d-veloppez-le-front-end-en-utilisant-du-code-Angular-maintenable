@@ -1,3 +1,7 @@
+# Notes d'architecture — Télésport
+
+# Étape 1 — Audit du starter code
+
 ## 1. Structure du projet
 
 L'architecture ne contient que des `pages/` mais aucun service, modèle ou composant réutilisable.
@@ -14,7 +18,7 @@ L'architecture ne contient que des `pages/` mais aucun service, modèle ou compo
 - Du typage `any` partout.
 - Il n'y a aucune interface `Olympic` ou `Participation` (la spec les fournit).
 
-## 4.
+## 4. Observables
 
 - Les `subscribe()` n'ont pas de désabonnement. `route.paramMap` ne se termine jamais tout seul.
 - Dans `country.component.ts`, `paramMap` et la requête HTTP sont gérés séparément au lieu d'être chaînés. Si le paramètre change, les données ne sont pas rechargées.
@@ -30,13 +34,13 @@ L'architecture ne contient que des `pages/` mais aucun service, modèle ou compo
 - Les graphiques ne sont jamais détruits (pas de `ngOnDestroy`), ce qui crée une fuite mémoire à chaque navigation.
 - `{{ pieChart }}` et `{{ lineChart }}` sont écrits à l'intérieur des `<canvas>` : ils affichent « [object Object] ».
 
-## 6.
+## 6. Tests et outillage
 
 - Les tests ne passent pas : ils vérifient un titre qui n'existe plus et ne fournissent pas `HttpClient`.
 - Aucun linter n'est configuré, donc `ng lint` ne fonctionne pas.
 - `angular.json` utilise `browserTarget` (déprécié), et les tests utilisent `RouterTestingModule` (déprécié).
 
-## 7.
+## 7. UI, responsive et accessibilité
 
 - Il n'y a pas d'état de chargement, d'état vide ni d'état d'erreur.
 - Le responsive est minimal : une seule media query, alors que la spec demande 3 formats (desktop, tablette, mobile).
@@ -44,6 +48,8 @@ L'architecture ne contient que des `pages/` mais aucun service, modèle ou compo
 - Le titre de page est dans une `<div>` au lieu d'un `<h1>`, et la page est déclarée en `lang="en"`.
 
 ---
+
+# Étape 2 — Nouvelle architecture
 
 ## Les blocs que j'ai identifiés
 
@@ -119,3 +125,50 @@ Aujourd'hui, les données viennent d'un fichier JSON. Dans les prochains projets
 
 - Comment bien gérer les observables entre le service et les pages, en particulier le désabonnement.
 - Si je dois aussi faire des composants séparés pour les graphiques, ou les laisser dans les pages.
+
+---
+
+# Étape 3 — Refactor réalisé
+
+## Ce qui a été fait
+
+- **Modèles** (`models/`) : `Olympic`, `Participation`, `Indicator` et `CountrySummary`. Plus aucun `any` dans le code.
+- **`DataService`** (`services/`) : seul point d'accès aux données (URL du JSON écrite une seule fois) et calculs métier (total des médailles, des athlètes, nombre de JO).
+- **Composants réutilisables** (`components/`), en signals (`input()`, `output()`, `viewChild.required()`) :
+  - `HeaderComponent` : titre + liste d'indicateurs, utilisé par les 2 pages ;
+  - `MedalsPieChartComponent` et `MedalsLineChartComponent` : graphiques Chart.js, détruits dans `ngOnDestroy`.
+- **Pages** (`pages/`) : `dashboard` et `country-detail` remplacent `home` et `country`, qui ont été supprimées.
+- **Route `/country/:id`** : un id inconnu ou invalide redirige vers `/not-found` (correction du bug critique).
+
+## Correspondance avec les constats de l'audit
+
+| Constat | Correction |
+|---|---|
+| HTTP et calculs dans les pages | `DataService` |
+| `any` partout | interfaces de `models/` |
+| Bloc titre + indicateurs dupliqué | `HeaderComponent` |
+| Crash si le pays n'existe pas | `getOlympicById` renvoie `Olympic \| undefined`, redirection vers `/not-found` |
+| Route par nom de pays | `country/:id` |
+| Graphiques ciblés par id DOM, jamais détruits | `viewChild.required` + `chart.destroy()` |
+| `subscribe(next, error)` déprécié | `subscribe({ next, error })` |
+| Pas d'états loading / empty / error | messages dédiés + bouton « Try again » ou « Back to dashboard » |
+| Responsive minimal | grille 12 / 8 / 4 colonnes (≥ 1200px, 768–1199px, ≤ 767px) |
+| Accessibilité absente | `<h1>`, `aria-label` sur les graphiques, liste de pays et tableau accessibles au clavier, focus visible, contrastes AA |
+| `ng lint` impossible | ESLint installé, 0 erreur |
+
+## Limites connues
+
+- Les tests unitaires (`ng test`) ne passent pas encore : ils doivent fournir le `DataService` et le routeur.
+- L'id est lu avec `route.snapshot` : suffisant tant qu'on ne navigue pas d'un pays à l'autre sans repasser par le dashboard.
+
+---
+
+# Mes commentaires personnels
+
+<!-- À rédiger moi-même, avec mes mots. Pistes :
+     - ce que j'ai vu en lançant le starter avec ng serve ;
+     - ce qui m'a surpris en venant de React (services, injection de dépendances, signals) ;
+     - les 3 corrections les plus importantes à mes yeux, et pourquoi ;
+     - ce que j'ai appris (smart / dumb, Git : branches, commits atomiques, pull request sur un fork) ;
+     - ce que je ferais ensuite (tests, signals pour l'état des pages). -->
+
