@@ -155,11 +155,20 @@ Aujourd'hui, les données viennent d'un fichier JSON. Dans les prochains projets
 | Responsive minimal | grille 12 / 8 / 4 colonnes (≥ 1200px, 768–1199px, ≤ 767px) |
 | Accessibilité absente | `<h1>`, `aria-label` sur les graphiques, liste de pays et tableau accessibles au clavier, focus visible, contrastes AA |
 | `ng lint` impossible | ESLint installé, 0 erreur |
+| Abonnements jamais coupés | `takeUntilDestroyed` dans les pages |
+| Tests cassés | 14 tests unitaires qui passent |
+
+## Finalisation
+
+- **Destruction des observables** : chaque `subscribe` des pages passe par `takeUntilDestroyed(this.destroyRef)`, qui coupe l'abonnement quand la page est détruite.
+- **Texte introductif** et logo TéléSport sur le dashboard.
+- **Tests unitaires** : 14 tests (service, composants, pages) ; `npm run test:ci` les lance sans navigateur visible.
+- **Captures d'écran** desktop et mobile dans `docs/screenshots/`.
 
 ## Limites connues
 
-- Les tests unitaires (`ng test`) ne passent pas encore : ils doivent fournir le `DataService` et le routeur.
 - L'id est lu avec `route.snapshot` : suffisant tant qu'on ne navigue pas d'un pays à l'autre sans repasser par le dashboard.
+- Les données sont simulées dans un fichier JSON : pas encore de vraie API.
 
 ---
 
