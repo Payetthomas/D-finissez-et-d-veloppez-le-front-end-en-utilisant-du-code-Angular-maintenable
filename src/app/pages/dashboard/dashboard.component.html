@@ -1,5 +1,12 @@
 <main class="page">
-  <p class="app-name">Olympic Games App</p>
+  <div class="intro">
+    <img class="intro-logo" src="assets/images/teleSport.png" alt="TéléSport" width="220" height="63" />
+    <p class="intro-text">
+      Discover how each country performed at the last Olympic Games (2012, 2016 and 2020).
+      The chart shows the total number of medals won by each country:
+      select a country in the chart or in the list to see its details.
+    </p>
+  </div>
   <app-header [title]="title" [indicators]="indicators"></app-header>
 
   @if (isLoading) {

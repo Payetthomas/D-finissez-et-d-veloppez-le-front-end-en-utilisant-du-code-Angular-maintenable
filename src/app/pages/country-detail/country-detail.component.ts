@@ -1,4 +1,5 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, DestroyRef, OnInit } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Indicator } from '../../models/indicator.model';
 import { Participation } from '../../models/participation.model';
@@ -21,34 +22,38 @@ export class CountryDetailComponent implements OnInit {
   constructor(
     private route: ActivatedRoute,
     private router: Router,
-    private dataService: DataService
+    private dataService: DataService,
+    private destroyRef: DestroyRef
   ) {}
 
   ngOnInit(): void {
     const id = Number(this.route.snapshot.paramMap.get('id'));
 
-    this.dataService.getOlympicById(id).subscribe({
-      next: (olympic) => {
-        if (!olympic) {
-          this.router.navigate(['/not-found']);
-          return;
-        }
+    this.dataService
+      .getOlympicById(id)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (olympic) => {
+          if (!olympic) {
+            this.router.navigate(['/not-found']);
+            return;
+          }
 
-        this.title = olympic.country;
-        this.participations = olympic.participations;
-        this.years = olympic.participations.map((participation) => participation.year);
-        this.medals = olympic.participations.map((participation) => participation.medalsCount);
-        this.indicators = [
-          { label: 'Number of entries', value: olympic.participations.length },
-          { label: 'Total Number of medals', value: this.dataService.getTotalMedals(olympic) },
-          { label: 'Total Number of athletes', value: this.dataService.getTotalAthletes(olympic) },
-        ];
-        this.isLoading = false;
-      },
-      error: () => {
-        this.errorMessage = 'Unable to load the data for this country. Please go back to the dashboard.';
-        this.isLoading = false;
-      },
-    });
+          this.title = olympic.country;
+          this.participations = olympic.participations;
+          this.years = olympic.participations.map((participation) => participation.year);
+          this.medals = olympic.participations.map((participation) => participation.medalsCount);
+          this.indicators = [
+            { label: 'Number of entries', value: olympic.participations.length },
+            { label: 'Total Number of medals', value: this.dataService.getTotalMedals(olympic) },
+            { label: 'Total Number of athletes', value: this.dataService.getTotalAthletes(olympic) },
+          ];
+          this.isLoading = false;
+        },
+        error: () => {
+          this.errorMessage = 'Unable to load the data for this country. Please go back to the dashboard.';
+          this.isLoading = false;
+        },
+      });
   }
 }
