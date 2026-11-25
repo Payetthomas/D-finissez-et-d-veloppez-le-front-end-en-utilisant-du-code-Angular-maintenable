@@ -1,0 +1,46 @@
+<main class="page">
+  <app-header [title]="title" [indicators]="indicators"></app-header>
+
+  @if (isLoading) {
+    <p class="state-message" role="status">Loading data…</p>
+  } @else if (errorMessage) {
+    <p class="state-message state-message--error" role="alert">{{ errorMessage }}</p>
+  } @else if (participations.length === 0) {
+    <p class="state-message">No data available.</p>
+  } @else {
+    <div class="grid">
+      <section class="col-main" aria-label="Line chart of medals per edition">
+        <app-medals-line-chart [years]="years" [medals]="medals"></app-medals-line-chart>
+      </section>
+
+      <section class="col-side">
+        <h2 class="section-title">Participations</h2>
+        <table class="data-table">
+          <caption class="visually-hidden">Medals and athletes per Olympic edition</caption>
+          <thead>
+            <tr>
+              <th scope="col">Year</th>
+              <th scope="col">City</th>
+              <th scope="col">Medals</th>
+              <th scope="col">Athletes</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (participation of participations; track participation.id) {
+              <tr>
+                <td>{{ participation.year }}</td>
+                <td>{{ participation.city }}</td>
+                <td>{{ participation.medalsCount }}</td>
+                <td>{{ participation.athleteCount }}</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </section>
+    </div>
+  }
+
+  <div class="actions">
+    <a class="button" routerLink="/">Back to dashboard</a>
+  </div>
+</main>

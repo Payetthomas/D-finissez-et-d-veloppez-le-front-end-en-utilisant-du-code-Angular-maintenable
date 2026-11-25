@@ -1,8 +1,7 @@
-import { HttpErrorResponse } from '@angular/common/http';
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
+import { CountrySummary } from '../../models/country-summary.model';
 import { Indicator } from '../../models/indicator.model';
-import { Olympic } from '../../models/olympic.model';
 import { DataService } from '../../services/data.service';
 
 @Component({
@@ -13,35 +12,48 @@ import { DataService } from '../../services/data.service';
 export class DashboardComponent implements OnInit {
   title = 'Medals per Country';
   indicators: Indicator[] = [];
+  summaries: CountrySummary[] = [];
   countries: string[] = [];
   medals: number[] = [];
+  isLoading = true;
   errorMessage = '';
-
-  private olympics: Olympic[] = [];
 
   constructor(private dataService: DataService, private router: Router) {}
 
   ngOnInit(): void {
+    this.loadData();
+  }
+
+  loadData(): void {
+    this.isLoading = true;
+    this.errorMessage = '';
+
     this.dataService.getOlympics().subscribe({
       next: (olympics) => {
-        this.olympics = olympics;
-        this.countries = olympics.map((olympic) => olympic.country);
-        this.medals = olympics.map((olympic) => this.dataService.getTotalMedals(olympic));
+        this.summaries = olympics.map((olympic) => ({
+          id: olympic.id,
+          country: olympic.country,
+          medals: this.dataService.getTotalMedals(olympic),
+        }));
+        this.countries = this.summaries.map((summary) => summary.country);
+        this.medals = this.summaries.map((summary) => summary.medals);
         this.indicators = [
           { label: 'Number of countries', value: olympics.length },
           { label: 'Number of JOs', value: this.dataService.getNumberOfJOs(olympics) },
         ];
+        this.isLoading = false;
       },
-      error: (error: HttpErrorResponse) => {
-        this.errorMessage = error.message;
+      error: () => {
+        this.errorMessage = 'Unable to load the Olympic data. Please try again.';
+        this.isLoading = false;
       },
     });
   }
 
   onCountrySelected(index: number): void {
-    const olympic = this.olympics[index];
-    if (olympic) {
-      this.router.navigate(['country', olympic.id]);
+    const summary = this.summaries[index];
+    if (summary) {
+      this.router.navigate(['country', summary.id]);
     }
   }
 }
