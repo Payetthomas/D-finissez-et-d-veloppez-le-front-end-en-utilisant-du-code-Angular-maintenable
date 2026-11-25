@@ -1,4 +1,5 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, DestroyRef, OnInit } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Router } from '@angular/router';
 import { CountrySummary } from '../../models/country-summary.model';
 import { Indicator } from '../../models/indicator.model';
@@ -18,7 +19,11 @@ export class DashboardComponent implements OnInit {
   isLoading = true;
   errorMessage = '';
 
-  constructor(private dataService: DataService, private router: Router) {}
+  constructor(
+    private dataService: DataService,
+    private router: Router,
+    private destroyRef: DestroyRef
+  ) {}
 
   ngOnInit(): void {
     this.loadData();
@@ -28,26 +33,29 @@ export class DashboardComponent implements OnInit {
     this.isLoading = true;
     this.errorMessage = '';
 
-    this.dataService.getOlympics().subscribe({
-      next: (olympics) => {
-        this.summaries = olympics.map((olympic) => ({
-          id: olympic.id,
-          country: olympic.country,
-          medals: this.dataService.getTotalMedals(olympic),
-        }));
-        this.countries = this.summaries.map((summary) => summary.country);
-        this.medals = this.summaries.map((summary) => summary.medals);
-        this.indicators = [
-          { label: 'Number of countries', value: olympics.length },
-          { label: 'Number of JOs', value: this.dataService.getNumberOfJOs(olympics) },
-        ];
-        this.isLoading = false;
-      },
-      error: () => {
-        this.errorMessage = 'Unable to load the Olympic data. Please try again.';
-        this.isLoading = false;
-      },
-    });
+    this.dataService
+      .getOlympics()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (olympics) => {
+          this.summaries = olympics.map((olympic) => ({
+            id: olympic.id,
+            country: olympic.country,
+            medals: this.dataService.getTotalMedals(olympic),
+          }));
+          this.countries = this.summaries.map((summary) => summary.country);
+          this.medals = this.summaries.map((summary) => summary.medals);
+          this.indicators = [
+            { label: 'Number of countries', value: olympics.length },
+            { label: 'Number of JOs', value: this.dataService.getNumberOfJOs(olympics) },
+          ];
+          this.isLoading = false;
+        },
+        error: () => {
+          this.errorMessage = 'Unable to load the Olympic data. Please try again.';
+          this.isLoading = false;
+        },
+      });
   }
 
   onCountrySelected(index: number): void {
